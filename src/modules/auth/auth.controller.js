@@ -39,7 +39,26 @@ async function registerCompany(req, res) {
   }
 }
 
+async function login(req, res) {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      throw new Error('Email y password son obligatorios');
+    }
+
+    const result = await authService.login({ email, password });
+
+    return res.json(result);
+
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+}
+
+
 export const authController = {
   registerCandidate,
-  registerCompany
+  registerCompany,
+  login
 };

@@ -1,6 +1,7 @@
 import pool from '../../config/db.js';
 import { hashPassword } from '../../utils/hash.js';
 import { generateAccessToken } from '../../utils/jwt.js';
+import bcrypt from 'bcrypt';
 
 async function register({ email, password, role }) {
   const client = await pool.connect();
@@ -64,6 +65,34 @@ async function register({ email, password, role }) {
   }
 }
 
+async function login({ email, password }) {
+  const userResult = await pool.query(
+    'SELECT id, email, password_hash, role FROM users WHERE email = $1',
+    [email]
+  );
+
+  if (userResult.rows.length === 0) {
+    throw new Error('Credenciales inválidas');
+  }
+
+  const user = userResult.rows[0];
+
+  const isMatch = await bcrypt.compare(password, user.password_hash);
+
+  if (!isMatch) {
+    throw new Error('Credenciales inválidas');
+  }
+
+  const token = generateAccessToken({
+    id: user.id,
+    role: user.role
+  });
+
+  return { token };
+}
+
+
 export const authService = {
-  register
+  register,
+  login
 };
