@@ -1,10 +1,9 @@
-/* export const authorize = (...allowedRoles) => {
+// src/middlewares/role.middleware.js
+export function authorize(...roles) {
   return (req, res, next) => {
-    if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({ message: 'Forbidden' });
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'No tienes permiso para esto' });
     }
-
     next();
   };
-};
- */
+}
